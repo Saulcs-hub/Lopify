@@ -30,6 +30,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.carlossaulvillabonapinilla.lopify.R
 
+// Importaciones de Mapbox
+import com.mapbox.geojson.Point
+import com.mapbox.maps.extension.compose.MapboxMap
+import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
+
+import android.graphics.BitmapFactory
+import androidx.compose.ui.platform.LocalContext
+import com.mapbox.maps.extension.compose.annotation.generated.PointAnnotation
+import com.mapbox.maps.extension.compose.annotation.generated.PolylineAnnotation
+
 // ─── COLORES GLOBALES ─────────────────────────────────────────────────────────
 private val IconGreen         = Color(0xFF0A1A05)
 private val BackgroundSurface = Color(0xFF93E575)
@@ -38,7 +48,7 @@ private val TextBlack         = Color(0xFF1A1A1A)
 private val DarkGreenText     = Color(0xFF1B5E20)
 private val LightGrayText     = Color(0xFF757575)
 
-// ─── DATA CLASSES (Para hacer el código PRO) ──────────────────────────────────
+// ─── DATA CLASSES ─────────────────────────────────────────────────────────────
 data class DeliveryData(
     val name: String,
     val distance: String,
@@ -52,14 +62,11 @@ data class DeliveryData(
 data class CategoryData(val name: String, val iconRes: Int)
 
 // ─── PANTALLA PRINCIPAL ───────────────────────────────────────────────────────
-@Preview(showBackground = true, showSystemUi = true, device = "spec:width=390dp,height=844dp,dpi=460")
 @Composable
 fun HomeScreen() {
-    // Estados
     var isStreakActive by remember { mutableStateOf(true) }
-    var selectedNavIndex by remember { mutableStateOf(0) } // Para cambiar de tab abajo
+    var selectedNavIndex by remember { mutableStateOf(0) }
 
-    // Fondo global con gradiente suave
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -70,10 +77,9 @@ fun HomeScreen() {
                 )
             )
     ) {
-        // Lista scrolleable con todo el contenido
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 120.dp) // Espacio para que el nav bar no tape contenido
+            contentPadding = PaddingValues(bottom = 120.dp)
         ) {
             item {
                 HomeHeader(
@@ -93,7 +99,6 @@ fun HomeScreen() {
             item { RecentDeliveriesSection() }
         }
 
-        // Barra de navegación fija abajo
         HomeNavBar(
             selectedIndex = selectedNavIndex,
             onItemSelected = { selectedNavIndex = it },
@@ -116,7 +121,6 @@ fun HomeHeader(
         verticalAlignment = Alignment.Top
     ) {
         Column {
-            // Racha (Sin fondo, como pediste)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -140,7 +144,6 @@ fun HomeHeader(
             Text(text = userName, fontSize = 34.sp, fontWeight = FontWeight.Bold, color = TextBlack, lineHeight = 38.sp)
         }
 
-        // Bolsa y Perfil
         Column(horizontalAlignment = Alignment.End) {
             Box(modifier = Modifier.padding(top = 4.dp)) {
                 Image(
@@ -192,7 +195,6 @@ fun ImpactCard() {
                     Text("23,5 kg reciclados", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Botón Huella Verde
                     Surface(
                         shape = RoundedCornerShape(12.dp),
                         color = Color.White.copy(alpha = 0.3f),
@@ -206,7 +208,6 @@ fun ImpactCard() {
                     }
                 }
 
-                // Círculo de Meta
                 Box(
                     modifier = Modifier
                         .size(75.dp)
@@ -222,14 +223,13 @@ fun ImpactCard() {
             }
         }
 
-        // Planta flotante (Overhang)
         Image(
             painter = painterResource(id = R.drawable.planta_flotante),
             contentDescription = null,
             modifier = Modifier
                 .size(105.dp)
                 .align(Alignment.BottomEnd)
-                .offset(x = (30).dp, y = (60).dp)
+                .offset(x = (10).dp, y = (25).dp)
         )
     }
 }
@@ -272,22 +272,78 @@ fun CategorySection() {
     }
 }
 
-// ─── 4. MAPA ──────────────────────────────────────────────────────────────────
+// ─── 4. MAPA (MAPBOX) ─────────────────────────────────────────────────────────
 @Composable
 fun MapSection() {
+    val context = LocalContext.current
+
+    // 1. Preparamos las imágenes de los marcadores
+    val markerReciclaje = remember(context) {
+        BitmapFactory.decodeResource(context.resources, R.drawable.bowl_reciclaje)
+    }
+    val markerMaria = remember(context) {
+        // Usa aquí el icono que prefieras para María (puede ser su avatar o un punto azul)
+        BitmapFactory.decodeResource(context.resources, R.drawable.avatar)
+    }
+
+    // 2. Coordenadas reales en Bucaramanga
+    val puntoSanPio = Point.fromLngLat(-73.1158, 7.1189) // Parque San Pío
+    val puntoEsquina = Point.fromLngLat(-73.1158, 7.1175) // Esquina para que la línea doble
+    val puntoMaria = Point.fromLngLat(-73.1165, 7.1175)   // María (Aprox a 200 metros)
+
+    // 3. Centramos la cámara en el medio de los dos puntos
+    val mapViewportState = rememberMapViewportState {
+        setCameraOptions {
+            center(Point.fromLngLat(-73.1160, 7.1182))
+            zoom(16.0) // Un poco más de zoom para que se vea bien la calle
+            pitch(45.0)
+        }
+    }
+
     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("Ver puntos cerca de ti", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextBlack)
             Spacer(modifier = Modifier.width(8.dp))
-            Image(painter = painterResource(id = R.drawable.camion), contentDescription = null, modifier = Modifier.size(28.dp))
+            Image(
+                painter = painterResource(id = R.drawable.punto),
+                contentDescription = null,
+                modifier = Modifier.size(28.dp)
+            )
         }
         Spacer(modifier = Modifier.height(12.dp))
+
         Surface(
-            modifier = Modifier.fillMaxWidth().height(180.dp),
-            shape = RoundedCornerShape(24.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .clip(RoundedCornerShape(24.dp)),
             shadowElevation = 4.dp
         ) {
-            Image(painter = painterResource(id = R.drawable.mapa), contentDescription = "Mapa", contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+            MapboxMap(
+                modifier = Modifier.fillMaxSize(),
+                mapViewportState = mapViewportState
+            ) {
+                // 4. Dibujamos la ruta (Línea)
+                PolylineAnnotation(
+                    points = listOf(puntoMaria, puntoEsquina, puntoSanPio),
+                    lineColorString = "#2E7D32", // Color verde oscuro de la ruta
+                    lineWidth = 6.0              // Grosor de la línea
+                )
+
+                // 5. Marcador de María (Origen)
+                PointAnnotation(
+                    point = puntoMaria,
+                    iconImageBitmap = markerMaria,
+                    iconSize = 0.8 // Un poco más pequeño
+                )
+
+                // 6. Marcador del Parque San Pío (Destino de reciclaje)
+                PointAnnotation(
+                    point = puntoSanPio,
+                    iconImageBitmap = markerReciclaje,
+                    iconSize = 1.2 // Un poco más grande para destacar
+                )
+            }
         }
     }
 }
@@ -372,7 +428,6 @@ fun HomeNavBar(
             NavBarItem(R.drawable.icon_home, "Inicio", selectedIndex == 0) { onItemSelected(0) }
             NavBarItem(R.drawable.delivery_home, "Pedidos", selectedIndex == 1) { onItemSelected(1) }
 
-            // Botón central flotante
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.offset(y = (-15).dp)
@@ -410,7 +465,7 @@ private fun NavBarItem(iconRes: Int, label: String, selected: Boolean, onClick: 
         Image(
             painter = painterResource(id = iconRes),
             contentDescription = label,
-            modifier = Modifier.size(32.dp).alpha(if (selected) 1f else 0.6f) // Atenúa iconos no seleccionados
+            modifier = Modifier.size(32.dp).alpha(if (selected) 1f else 0.6f)
         )
         Spacer(modifier = Modifier.height(2.dp))
         Text(text = label, fontSize = 11.sp, color = IconGreen, fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium)

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Lopify</string>
+    <string name="mapbox_access_token">pk.eyJ1Ijoic2F1bGNzMiIsImEiOiJjbW90aWdtOTAwNG4xMnJwdnZpNDhyaDV5In0.CuJ_cS3zn6NTeclVZDqzsA</string>
 </resources>

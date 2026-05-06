@@ -4,15 +4,19 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+// ¡No olvides importar tu HomeScreen!
+import com.carlossaulvillabonapinilla.lopify.ui.screens.HomeScreen
 import com.carlossaulvillabonapinilla.lopify.ui.screens.LoginScreen
 import com.carlossaulvillabonapinilla.lopify.ui.screens.LoopifySplashScreen
 import com.carlossaulvillabonapinilla.lopify.ui.screens.RegisterScreen
+
 
 // ─── Rutas ────────────────────────────────────────────────────────────────────
 object Routes {
     const val SPLASH   = "splash"
     const val LOGIN    = "login"
     const val REGISTER = "register"
+    const val HOME     = "home" // 🟢 NUEVA RUTA
 }
 
 // ─── Grafo de navegación ──────────────────────────────────────────────────────
@@ -30,8 +34,7 @@ fun LoopifyNavGraph() {
             LoopifySplashScreen(
                 onSplashFinished = {
                     navController.navigate(Routes.LOGIN) {
-                        // Elimina el Splash del back stack para que el usuario
-                        // no pueda volver a él con el botón atrás
+                        // Elimina el Splash del back stack
                         popUpTo(Routes.SPLASH) { inclusive = true }
                     }
                 }
@@ -42,8 +45,10 @@ fun LoopifyNavGraph() {
         composable(Routes.LOGIN) {
             LoginScreen(
                 onLoginClick = {
-                    // TODO: navegar a Home cuando la tengas
-                    // navController.navigate(Routes.HOME)
+                    // 🟢 Navegamos al Home y destruimos el Login del historial
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.LOGIN) { inclusive = true }
+                    }
                 },
                 onGoogleClick = {
                     // TODO: lógica Google Sign-In
@@ -78,6 +83,12 @@ fun LoopifyNavGraph() {
                     navController.popBackStack()
                 }
             )
+        }
+
+        // ── Home ──────────────────────────────────────────────────────────────
+        // 🟢 Aquí declaramos la pantalla Home en el grafo
+        composable(Routes.HOME) {
+            HomeScreen()
         }
     }
 }
