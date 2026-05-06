@@ -49,6 +49,7 @@ private val GoogleSansSemiBold = FontFamily(
 )
 
 // ─── Register Screen ──────────────────────────────────────────────────────────
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     onBackClick: () -> Unit = {},
@@ -62,6 +63,7 @@ fun RegisterScreen(
     var telefono by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var showDatePicker by remember { mutableStateOf(false) }
 
     // ── Animación flotante de la planta (bob infinito) ─────────────────────────
     val infiniteTransition = rememberInfiniteTransition(label = "plantBob")
@@ -183,14 +185,55 @@ fun RegisterScreen(
                     placeholder = "DD-MM-YYYY",
                     keyboardType = KeyboardType.Number,
                     trailingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.calendar),
-                            contentDescription = "Calendario",
-                            tint = SubtitleColor,
-                            modifier = Modifier.size(20.dp)
-                        )
+                        IconButton(onClick = { showDatePicker = true }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.calendar),
+                                contentDescription = "Calendario",
+                                tint = SubtitleColor,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                 )
+                // Dialog del calendario
+                if (showDatePicker) {
+                    val datePickerState = rememberDatePickerState()
+
+                    DatePickerDialog(
+                        onDismissRequest = { showDatePicker = false },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                datePickerState.selectedDateMillis?.let { millis ->
+                                    val sdf = java.text.SimpleDateFormat("dd-MM-yyyy", java.util.Locale.getDefault())
+                                    fechaNacimiento = sdf.format(java.util.Date(millis))
+                                }
+                                showDatePicker = false
+                            }) {
+                                Text("Aceptar", color = GreenPrimary)
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showDatePicker = false }) {
+                                Text("Cancelar", color = SubtitleColor)
+                            }
+                        }
+                    ) {
+                        DatePicker(
+                            state = datePickerState,
+                            colors = DatePickerDefaults.colors(
+                                containerColor = Color.White,
+                                titleContentColor = GreenPrimary,
+                                headlineContentColor = GreenPrimary,
+                                weekdayContentColor = SubtitleColor,
+                                selectedDayContainerColor = GreenPrimary,
+                                selectedDayContentColor = Color.White,
+                                todayDateBorderColor = GreenPrimary,
+                                todayContentColor = GreenPrimary,
+                                dayContentColor = TitleColor,
+                            )
+                        )
+                    }
+                }
                 Spacer(modifier = Modifier.height(12.dp))
 
                 // ── Teléfono con bandera ───────────────────────────────────────

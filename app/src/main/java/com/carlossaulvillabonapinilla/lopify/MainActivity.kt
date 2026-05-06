@@ -11,15 +11,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.carlossaulvillabonapinilla.lopify.ui.navigation.LoopifyNavGraph
 import com.carlossaulvillabonapinilla.lopify.ui.screens.RegisterScreen
 import com.carlossaulvillabonapinilla.lopify.ui.theme.LopifyTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
-            RegisterScreen()
+            LoopifyNavGraph()
         }
     }
 }
