@@ -1,8 +1,17 @@
 package com.carlossaulvillabonapinilla.lopify.ui.screens
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,6 +21,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.res.painterResource
@@ -43,7 +54,7 @@ private val OrColor         = Color(0xFFAAAAAA)
 
 // ─── Fuente ───────────────────────────────────────────────────────────────────
 private val GoogleLogin = FontFamily(
-    Font(R.font.googlesans_medium,)
+    Font(R.font.googlesans_semibold,)
 )
 
 // ─── Login Screen ─────────────────────────────────────────────────────────────
@@ -60,6 +71,32 @@ fun LoginScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var rememberMe by remember { mutableStateOf(false) }
+    var passwordVisible by remember { mutableStateOf(false) }
+
+    // Animaciones
+
+    val infiniteTransition = rememberInfiniteTransition(label = "iconPulse")
+    val iconScale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.08f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 900, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "scale"
+    )
+    // Animacion del bombillo
+    val bulbScale = remember { Animatable(1f) }
+    LaunchedEffect(passwordVisible) {
+        bulbScale.animateTo(
+            targetValue = 1.2f,
+            animationSpec = tween(100)
+        )
+        bulbScale.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(100)
+        )
+    }
 
     Box(
         modifier = Modifier
@@ -96,6 +133,10 @@ fun LoginScreen(
                         .size(130.dp)
                         .offset(y = 48.dp)
                         .zIndex(2f)
+                        .graphicsLayer {
+                            scaleX = iconScale
+                            scaleY = iconScale
+                        }
                 )
             }
 
@@ -146,14 +187,25 @@ fun LoginScreen(
                     value = password,
                     onValueChange = { password = it },
                     placeholder = "Contraseña",
-                    isPassword = true,
+                    isPassword = !passwordVisible,
                     trailingIcon = {
-                        // TODO: Reemplaza R.drawable.bombillo con tu ícono
-                        Icon(
+                        Image(
                             painter = painterResource(id = R.drawable.bombillo),
-                            contentDescription = "Password icon",
-                            tint = Color.Unspecified,
-                            modifier = Modifier.size(24.dp)
+                            contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña",
+                            modifier = Modifier
+                                .size(28.dp)
+                                .scale(bulbScale.value)
+                                .alpha(if (passwordVisible) 1f else 0.35f)
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null
+                                ) {
+                                    passwordVisible = !passwordVisible
+                                },
+                            colorFilter = if (passwordVisible) null else
+                                ColorFilter.colorMatrix(
+                                    ColorMatrix().apply { setToSaturation(0f) }
+                                )
                         )
                     }
                 )
@@ -220,7 +272,7 @@ fun LoginScreen(
 
                 SocialButton(
                     text = "Continue with Google",
-                    iconRes = R.drawable.icon_google,   // TODO: agrega ic_google.png en drawable
+                    iconRes = R.drawable.icon_google,
                     onClick = onGoogleClick
                 )
 
@@ -228,7 +280,7 @@ fun LoginScreen(
 
                 SocialButton(
                     text = "Continue with Facebook",
-                    iconRes = R.drawable.icon_facebook, // TODO: agrega ic_facebook.png en drawable
+                    iconRes = R.drawable.icon_facebook,
                     onClick = onFacebookClick
                 )
 

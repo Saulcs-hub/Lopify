@@ -60,6 +60,7 @@ fun LoopifySplashScreen(
 
     Box(
         modifier = Modifier
+
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
