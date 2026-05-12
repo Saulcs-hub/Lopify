@@ -63,7 +63,11 @@ data class CategoryData(val name: String, val iconRes: Int)
 
 // ─── PANTALLA PRINCIPAL ───────────────────────────────────────────────────────
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onNavigateToOrders: () -> Unit = {},
+    onNavigateToMap: () -> Unit = {},
+    onNavigateToProfile: () -> Unit = {}
+) {
     var isStreakActive by remember { mutableStateOf(true) }
     var selectedNavIndex by remember { mutableStateOf(0) }
 
@@ -101,7 +105,16 @@ fun HomeScreen() {
 
         HomeNavBar(
             selectedIndex = selectedNavIndex,
-            onItemSelected = { selectedNavIndex = it },
+            onItemSelected = { index ->
+                selectedNavIndex = index
+                when (index) {
+                    // 0 = Inicio, pantalla actual, no navega
+                    1 -> onNavigateToOrders()
+                    // 2 = botón Enviar (cámara, pendiente)
+                    3 -> onNavigateToMap()
+                    4 -> onNavigateToProfile()
+                }
+            },
             modifier = Modifier.align(Alignment.BottomCenter)
         )
     }

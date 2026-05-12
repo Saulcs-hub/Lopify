@@ -4,91 +4,100 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-// ¡No olvides importar tu HomeScreen!
 import com.carlossaulvillabonapinilla.lopify.ui.screens.HomeScreen
 import com.carlossaulvillabonapinilla.lopify.ui.screens.LoginScreen
 import com.carlossaulvillabonapinilla.lopify.ui.screens.LoopifySplashScreen
 import com.carlossaulvillabonapinilla.lopify.ui.screens.RegisterScreen
+// 🟢 Nuevos imports
+import com.carlossaulvillabonapinilla.lopify.ui.screens.OrdersScreen
+import com.carlossaulvillabonapinilla.lopify.ui.screens.MapScreen
+import com.carlossaulvillabonapinilla.lopify.ui.screens.ProfileScreen
 
-
-// ─── Rutas ────────────────────────────────────────────────────────────────────
 object Routes {
     const val SPLASH   = "splash"
     const val LOGIN    = "login"
     const val REGISTER = "register"
-    const val HOME     = "home" // 🟢 NUEVA RUTA
+    const val HOME     = "home"
+    // 🟢 Nuevas rutas
+    const val ORDERS   = "orders"
+    const val MAP      = "map"
+    const val PROFILE  = "profile"
 }
 
-// ─── Grafo de navegación ──────────────────────────────────────────────────────
 @Composable
 fun LoopifyNavGraph() {
     val navController = rememberNavController()
 
-    NavHost(
-        navController = navController,
-        startDestination = Routes.SPLASH
-    ) {
+    NavHost(navController = navController, startDestination = Routes.SPLASH) {
 
-        // ── Splash ────────────────────────────────────────────────────────────
         composable(Routes.SPLASH) {
             LoopifySplashScreen(
                 onSplashFinished = {
                     navController.navigate(Routes.LOGIN) {
-                        // Elimina el Splash del back stack
                         popUpTo(Routes.SPLASH) { inclusive = true }
                     }
                 }
             )
         }
 
-        // ── Login ─────────────────────────────────────────────────────────────
         composable(Routes.LOGIN) {
             LoginScreen(
                 onLoginClick = {
-                    // 🟢 Navegamos al Home y destruimos el Login del historial
                     navController.navigate(Routes.HOME) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
                 },
-                onGoogleClick = {
-                    // TODO: lógica Google Sign-In
-                },
-                onFacebookClick = {
-                    // TODO: lógica Facebook Sign-In
-                },
-                onForgotPassword = {
-                    // TODO: navegar a ForgotPasswordScreen
-                },
-                onRegister = {
-                    navController.navigate(Routes.REGISTER)
-                }
+                onGoogleClick = {},
+                onFacebookClick = {},
+                onForgotPassword = {},
+                onRegister = { navController.navigate(Routes.REGISTER) }
             )
         }
 
-        // ── Register ──────────────────────────────────────────────────────────
         composable(Routes.REGISTER) {
             RegisterScreen(
-                onBackClick = {
-                    // Flecha atrás → regresa al Login
-                    navController.popBackStack()
-                },
+                onBackClick = { navController.popBackStack() },
                 onRegisterClick = {
-                    // Registro exitoso → va al Login y limpia el stack
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(Routes.LOGIN) { inclusive = false }
                     }
                 },
-                onLoginClick = {
-                    // "Ya tienes cuenta?" → regresa al Login
-                    navController.popBackStack()
-                }
+                onLoginClick = { navController.popBackStack() }
             )
         }
 
-        // ── Home ──────────────────────────────────────────────────────────────
-        // 🟢 Aquí declaramos la pantalla Home en el grafo
         composable(Routes.HOME) {
-            HomeScreen()
+            HomeScreen(
+                // 🟢 Pasa el navController a HomeScreen para que pueda navegar
+                onNavigateToOrders  = { navController.navigate(Routes.ORDERS) },
+                onNavigateToMap     = { navController.navigate(Routes.MAP) },
+                onNavigateToProfile = { navController.navigate(Routes.PROFILE) }
+            )
+        }
+
+        // 🟢 Nuevas pantallas
+        composable(Routes.ORDERS) {
+            OrdersScreen(
+                onNavigateToHome    = { navController.navigate(Routes.HOME) },
+                onNavigateToMap     = { navController.navigate(Routes.MAP) },
+                onNavigateToProfile = { navController.navigate(Routes.PROFILE) }
+            )
+        }
+
+        composable(Routes.MAP) {
+            MapScreen(
+                onNavigateToHome    = { navController.navigate(Routes.HOME) },
+                onNavigateToOrders  = { navController.navigate(Routes.ORDERS) },
+                onNavigateToProfile = { navController.navigate(Routes.PROFILE) }
+            )
+        }
+
+        composable(Routes.PROFILE) {
+            ProfileScreen(
+                onNavigateToHome   = { navController.navigate(Routes.HOME) },
+                onNavigateToOrders = { navController.navigate(Routes.ORDERS) },
+                onNavigateToMap    = { navController.navigate(Routes.MAP) }
+            )
         }
     }
 }
