@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "661387996733",
+    "project_id": "lopify-user",
+    "storage_bucket": "lopify-user.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:661387996733:android:e530bfd030008203fb4454",
+        "android_client_info": {
+          "package_name": "com.carlossaulvillabonapinilla.lopify"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDL8_8S-RoHc1UBiH_pmI94bTYPRH_RGvE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

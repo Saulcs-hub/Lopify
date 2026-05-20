@@ -37,12 +37,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.carlossaulvillabonapinilla.lopify.R
+import com.carlossaulvillabonapinilla.lopify.viewmodel.AuthState
+import com.carlossaulvillabonapinilla.lopify.viewmodel.AuthViewModel
 
 // ─── Colores ──────────────────────────────────────────────────────────────────
 private val BackgroundColor = Color(0xFFF0F5F0)
-private val GreenDark       = Color(0xFF119420)        // parada 5% figma
-private val GreenBright     = Color(0xBF47FF78)        // parada 90% figma (74% opacidad = BF)
 private val GreenPrimary    = Color(0xFF4CAF50)
 private val GreenText       = Color(0xFF4CAF50)
 private val TitleColor      = Color(0xFF1A1A1A)
@@ -53,9 +54,7 @@ private val SocialBorder    = Color(0xFFDDDDDD)
 private val OrColor         = Color(0xFFAAAAAA)
 
 // ─── Fuente ───────────────────────────────────────────────────────────────────
-private val GoogleLogin = FontFamily(
-    Font(R.font.googlesans_semibold,)
-)
+private val GoogleLogin = FontFamily(Font(R.font.googlesans_semibold))
 
 // ─── Login Screen ─────────────────────────────────────────────────────────────
 @Composable
@@ -64,17 +63,26 @@ fun LoginScreen(
     onGoogleClick: () -> Unit = {},
     onFacebookClick: () -> Unit = {},
     onForgotPassword: () -> Unit = {},
-    onRegister: () -> Unit = {}
+    onRegister: () -> Unit = {},
+    viewModel: AuthViewModel = viewModel()
 ) {
-
-    // Estados
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var rememberMe by remember { mutableStateOf(false) }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    // Animaciones
+    val authState by viewModel.authState.collectAsState()
+    val isLoading = authState is AuthState.Loading
 
+    // Navegar al Home cuando login sea exitoso
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Success) {
+            viewModel.resetState()
+            onLoginClick()
+        }
+    }
+
+    // Animaciones
     val infiniteTransition = rememberInfiniteTransition(label = "iconPulse")
     val iconScale by infiniteTransition.animateFloat(
         initialValue = 1f,
@@ -85,17 +93,10 @@ fun LoginScreen(
         ),
         label = "scale"
     )
-    // Animacion del bombillo
     val bulbScale = remember { Animatable(1f) }
     LaunchedEffect(passwordVisible) {
-        bulbScale.animateTo(
-            targetValue = 1.2f,
-            animationSpec = tween(100)
-        )
-        bulbScale.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(100)
-        )
+        bulbScale.animateTo(1.2f, animationSpec = tween(100))
+        bulbScale.animateTo(1f, animationSpec = tween(100))
     }
 
     Box(
@@ -109,23 +110,18 @@ fun LoginScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            // ── Header con gradiente lineal verde → fondo ────────────────────
+            // Header con gradiente
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(160.dp)
                     .background(
                         brush = Brush.verticalGradient(
-                            colors = listOf(
-                                Color(0xFF3DD92A),   // verde vibrante arriba
-                                Color(0xFFF0F5F0)    // mismo color que el fondo abajo
-                            )
+                            colors = listOf(Color(0xFF3DD92A), Color(0xFFF0F5F0))
                         )
                     ),
                 contentAlignment = Alignment.BottomCenter
             ) {
-
                 Image(
                     painter = painterResource(id = R.drawable.basurero),
                     contentDescription = "Loopify icon",
@@ -133,17 +129,12 @@ fun LoginScreen(
                         .size(130.dp)
                         .offset(y = 48.dp)
                         .zIndex(2f)
-                        .graphicsLayer {
-                            scaleX = iconScale
-                            scaleY = iconScale
-                        }
+                        .graphicsLayer { scaleX = iconScale; scaleY = iconScale }
                 )
             }
 
-            // ── Espacio para el ícono flotante ─────────────────────────────────
             Spacer(modifier = Modifier.height(68.dp))
 
-            // ── Contenido ──────────────────────────────────────────────────────
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -191,7 +182,7 @@ fun LoginScreen(
                     trailingIcon = {
                         Image(
                             painter = painterResource(id = R.drawable.bombillo),
-                            contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña",
+                            contentDescription = if (passwordVisible) "Ocultar" else "Mostrar",
                             modifier = Modifier
                                 .size(28.dp)
                                 .scale(bulbScale.value)
@@ -199,13 +190,9 @@ fun LoginScreen(
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = null
-                                ) {
-                                    passwordVisible = !passwordVisible
-                                },
+                                ) { passwordVisible = !passwordVisible },
                             colorFilter = if (passwordVisible) null else
-                                ColorFilter.colorMatrix(
-                                    ColorMatrix().apply { setToSaturation(0f) }
-                                )
+                                ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
                         )
                     }
                 )
@@ -228,11 +215,11 @@ fun LoginScreen(
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text(text = "Recuérdame", fontSize = 13.sp, color = SubtitleColor)
+                        Text("Recuérdame", fontSize = 13.sp, color = SubtitleColor)
                     }
                     TextButton(onClick = onForgotPassword) {
                         Text(
-                            text = "Has olvidado tu contraseña ?",
+                            "Has olvidado tu contraseña ?",
                             fontSize = 13.sp,
                             color = GreenText,
                             fontWeight = FontWeight.Medium
@@ -242,8 +229,10 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
+                // ── Botón Login con loading ────────────────────────────────────
                 Button(
-                    onClick = onLoginClick,
+                    onClick = { viewModel.login(email, password) },
+                    enabled = !isLoading,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp)
@@ -256,33 +245,37 @@ fun LoginScreen(
                     shape = RoundedCornerShape(14.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = GreenPrimary)
                 ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(22.dp),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text("Iniciar Sesion", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                    }
+                }
+
+                // ── Mensaje de error ───────────────────────────────────────────
+                if (authState is AuthState.Error) {
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Iniciar Sesion",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        text = (authState as AuthState.Error).message,
+                        color = Color.Red,
+                        fontSize = 13.sp,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                Text(text = "Or", fontSize = 13.sp, color = OrColor, textAlign = TextAlign.Center)
+                Text("Or", fontSize = 13.sp, color = OrColor, textAlign = TextAlign.Center)
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                SocialButton(
-                    text = "Continue with Google",
-                    iconRes = R.drawable.icon_google,
-                    onClick = onGoogleClick
-                )
-
+                SocialButton("Continue with Google", R.drawable.icon_google, onGoogleClick)
                 Spacer(modifier = Modifier.height(12.dp))
-
-                SocialButton(
-                    text = "Continue with Facebook",
-                    iconRes = R.drawable.icon_facebook,
-                    onClick = onFacebookClick
-                )
+                SocialButton("Continue with Facebook", R.drawable.icon_facebook, onFacebookClick)
 
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -290,14 +283,9 @@ fun LoginScreen(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "No tienes una cuenta? ", fontSize = 13.sp, color = SubtitleColor)
+                    Text("No tienes una cuenta? ", fontSize = 13.sp, color = SubtitleColor)
                     TextButton(onClick = onRegister, contentPadding = PaddingValues(0.dp)) {
-                        Text(
-                            text = "Regístrate",
-                            fontSize = 13.sp,
-                            color = GreenText,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        Text("Regístrate", fontSize = 13.sp, color = GreenText, fontWeight = FontWeight.SemiBold)
                     }
                 }
 
@@ -334,12 +322,8 @@ private fun LoginTextField(
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(
-                elevation = 4.dp,
-                shape = RoundedCornerShape(14.dp),
-                ambientColor = Color(0x1A000000),
-                spotColor = Color(0x1A000000)
-            )
+            .shadow(elevation = 4.dp, shape = RoundedCornerShape(14.dp),
+                ambientColor = Color(0x1A000000), spotColor = Color(0x1A000000))
     )
 }
 
@@ -351,30 +335,19 @@ private fun SocialButton(text: String, iconRes: Int, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .height(52.dp)
-            .shadow(
-                elevation = 4.dp,
-                shape = RoundedCornerShape(14.dp),
-                ambientColor = Color(0x1A000000),
-                spotColor = Color(0x1A000000)
-            ),
+            .shadow(elevation = 4.dp, shape = RoundedCornerShape(14.dp),
+                ambientColor = Color(0x1A000000), spotColor = Color(0x1A000000)),
         shape = RoundedCornerShape(14.dp),
         border = BorderStroke(1.dp, SocialBorder),
         colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White)
     ) {
-        Icon(
-            painter = painterResource(id = iconRes),
-            contentDescription = text,
-            tint = Color.Unspecified,
-            modifier = Modifier.size(20.dp)
-        )
+        Icon(painter = painterResource(id = iconRes), contentDescription = text,
+            tint = Color.Unspecified, modifier = Modifier.size(20.dp))
         Spacer(modifier = Modifier.width(10.dp))
         Text(text = text, fontSize = 15.sp, color = TitleColor, fontWeight = FontWeight.Medium)
     }
 }
 
-// ─── Preview ──────────────────────────────────────────────────────────────────
-@Preview(showBackground = true, showSystemUi = true, device = "spec:width=390dp,height=844dp,dpi=460")
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun LoginScreenPreview() {
-    LoginScreen()
-}
+fun LoginScreenPreview() { LoginScreen() }
