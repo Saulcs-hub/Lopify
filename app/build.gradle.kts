@@ -75,4 +75,9 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:1.3.4")
     implementation("androidx.camera:camera-view:1.3.4")
 
+    // SDK Oficial de Gemini para Android (Gratuito mediante AI Studio)
+    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+    // Corrutinas para no congelar la pantalla al procesar la IA
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
 }

@@ -25,14 +25,15 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
 
-        // --- AQUÍ ES DONDE AGREGAS EL "PASSWORD" ---
         maven {
             url = uri("https://api.mapbox.com/downloads/v2/releases/maven")
-            credentials {
-                username = "saulcs2"
 
-                password = localProperties.getProperty("MAPBOX_DOWNLOADS_TOKEN")
+            credentials {
+                username = "mapbox"
+                password = providers.gradleProperty("MAPBOX_DOWNLOADS_TOKEN").orElse("").get()
+
             }
+
             authentication {
                 create<BasicAuthentication>("basic")
             }
