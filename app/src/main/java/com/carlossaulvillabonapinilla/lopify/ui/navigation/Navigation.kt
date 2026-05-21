@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.carlossaulvillabonapinilla.lopify.ui.screens.CameraScreen
 import com.carlossaulvillabonapinilla.lopify.ui.screens.HomeScreen
 import com.carlossaulvillabonapinilla.lopify.ui.screens.LoginScreen
 import com.carlossaulvillabonapinilla.lopify.ui.screens.LoopifySplashScreen
@@ -12,6 +13,7 @@ import com.carlossaulvillabonapinilla.lopify.ui.screens.RegisterScreen
 import com.carlossaulvillabonapinilla.lopify.ui.screens.OrdersScreen
 import com.carlossaulvillabonapinilla.lopify.ui.screens.MapScreen
 import com.carlossaulvillabonapinilla.lopify.ui.screens.ProfileScreen
+import com.carlossaulvillabonapinilla.lopify.ui.screens.ResultScreen
 
 object Routes {
     const val SPLASH   = "splash"
@@ -22,6 +24,10 @@ object Routes {
     const val ORDERS   = "orders"
     const val MAP      = "map"
     const val PROFILE  = "profile"
+
+    const val CAMERA = "camera"
+
+    const val RESULT = "result"
 }
 
 @Composable
@@ -71,7 +77,8 @@ fun LoopifyNavGraph() {
                 // 🟢 Pasa el navController a HomeScreen para que pueda navegar
                 onNavigateToOrders  = { navController.navigate(Routes.ORDERS) },
                 onNavigateToMap     = { navController.navigate(Routes.MAP) },
-                onNavigateToProfile = { navController.navigate(Routes.PROFILE) }
+                onNavigateToProfile = { navController.navigate(Routes.PROFILE) },
+                onNavigateToCamera  = { navController.navigate(Routes.CAMERA) }
             )
         }
 
@@ -99,5 +106,28 @@ fun LoopifyNavGraph() {
                 onNavigateToMap    = { navController.navigate(Routes.MAP) }
             )
         }
+
+        composable(Routes.CAMERA) {
+            CameraScreen(
+                onResult = {
+                    navController.navigate(Routes.RESULT) {
+                        popUpTo(Routes.CAMERA) { inclusive = true }
+                    }
+                },
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Routes.RESULT) {
+            ResultScreen(
+                onNewCapture = {
+                    navController.navigate(Routes.CAMERA) {
+                        popUpTo(Routes.RESULT) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+
     }
 }

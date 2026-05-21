@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -58,8 +59,8 @@ fun OrdersScreen(
     onNavigateToMap: () -> Unit = {},
     onNavigateToProfile: () -> Unit = {}
 ) {
-    var selectedFilter by remember { mutableStateOf(0) }
-    var selectedNavIndex by remember { mutableStateOf(1) }
+    var selectedFilter by rememberSaveable { mutableStateOf(0) }
+    var selectedNavIndex by rememberSaveable { mutableStateOf(1) }
 
     val filters = listOf("Todos", "Pendiente", "En camino", "Completado")
 

@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -61,7 +62,7 @@ fun ProfileScreen(
     onNavigateToOrders: () -> Unit = {},
     onNavigateToMap: () -> Unit = {}
 ) {
-    var selectedNavIndex by remember { mutableStateOf(4) }
+    var selectedNavIndex by rememberSaveable { mutableStateOf(4) }
 
     val userStats = UserStats(
         kgThisMonth = 23.5,

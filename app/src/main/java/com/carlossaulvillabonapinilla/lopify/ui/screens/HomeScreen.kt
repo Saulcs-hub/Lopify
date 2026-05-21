@@ -36,6 +36,7 @@ import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
 
 import android.graphics.BitmapFactory
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
 import com.mapbox.maps.extension.compose.annotation.generated.PointAnnotation
 import com.mapbox.maps.extension.compose.annotation.generated.PolylineAnnotation
@@ -66,10 +67,11 @@ data class CategoryData(val name: String, val iconRes: Int)
 fun HomeScreen(
     onNavigateToOrders: () -> Unit = {},
     onNavigateToMap: () -> Unit = {},
-    onNavigateToProfile: () -> Unit = {}
+    onNavigateToProfile: () -> Unit = {},
+    onNavigateToCamera: () -> Unit = {}
 ) {
-    var isStreakActive by remember { mutableStateOf(true) }
-    var selectedNavIndex by remember { mutableStateOf(0) }
+    var isStreakActive by rememberSaveable { mutableStateOf(true) }
+    var selectedNavIndex by rememberSaveable { mutableStateOf(0) }
 
     Box(
         modifier = Modifier
@@ -110,7 +112,7 @@ fun HomeScreen(
                 when (index) {
                     // 0 = Inicio, pantalla actual, no navega
                     1 -> onNavigateToOrders()
-                    // 2 = botón Enviar (cámara, pendiente)
+                    2 -> onNavigateToCamera()
                     3 -> onNavigateToMap()
                     4 -> onNavigateToProfile()
                 }

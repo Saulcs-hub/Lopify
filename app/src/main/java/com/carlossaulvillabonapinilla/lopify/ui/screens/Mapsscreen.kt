@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -59,8 +60,8 @@ fun MapScreen(
     onNavigateToOrders: () -> Unit = {},
     onNavigateToProfile: () -> Unit = {}
 ) {
-    var selectedFilter by remember { mutableStateOf(0) }
-    var selectedNavIndex by remember { mutableStateOf(3) }
+    var selectedFilter by rememberSaveable  { mutableStateOf(0) }
+    var selectedNavIndex by rememberSaveable  { mutableStateOf(3) }
     var selectedPoint by remember { mutableStateOf<RecyclePoint?>(null) }
 
     val materialFilters = listOf("Todos", "Papel", "Vidrio", "Plástico", "Cartón")

@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -37,8 +38,8 @@ private val LogoColor  = Color(0xFF1E3A1E)
 fun LoopifySplashScreen(
     onSplashFinished: () -> Unit = {}
 ) {
-    val alphaAnim = remember { Animatable(0f) }
-    val scaleAnim = remember { Animatable(0.85f) }
+    val alphaAnim = remember  { Animatable(0f) }
+    val scaleAnim = remember  { Animatable(0.85f) }
 
     LaunchedEffect(Unit) {
         launch {

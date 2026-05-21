@@ -57,21 +57,43 @@ class AuthViewModel : ViewModel() {
         nombre: String, apellido: String, email: String,
         password: String, telefono: String, fechaNacimiento: String
     ) {
-        if (nombre.isBlank() || email.isBlank() || password.isBlank()) {
+        // ── Validar campos vacíos ──────────────────────────────────────────────
+        if (nombre.isBlank() || apellido.isBlank() || email.isBlank() || password.isBlank()) {
             _authState.value = AuthState.Error("Completa todos los campos obligatorios")
             return
         }
+
+        // ── Validar que sea Gmail ──────────────────────────────────────────────
+        if (!email.lowercase().endsWith("@gmail.com")) {
+            _authState.value = AuthState.Error("Solo se permiten correos @gmail.com")
+            return
+        }
+
+        // ── Validar mínimo 6 caracteres ────────────────────────────────────────
         if (password.length < 6) {
             _authState.value = AuthState.Error("La contraseña debe tener al menos 6 caracteres")
             return
         }
+
+        // ── Validar al menos una mayúscula ─────────────────────────────────────
+        if (!password.any { it.isUpperCase() }) {
+            _authState.value = AuthState.Error("La contraseña debe tener al menos una mayúscula")
+            return
+        }
+
+        // ── Validar al menos un signo especial ────────────────────────────────
+        val specialChars = "!@#\$%^&*()_+-=[]{}|;':\",./<>?"
+        if (!password.any { it in specialChars }) {
+            _authState.value = AuthState.Error("La contraseña debe tener al menos un signo especial (!@#\$...)")
+            return
+        }
+
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             try {
                 val result = auth.createUserWithEmailAndPassword(email, password).await()
                 val uid = result.user?.uid ?: throw Exception("Error al obtener UID")
 
-                // Guardar datos del usuario en Firestore
                 val userData = hashMapOf(
                     "nombre"          to nombre,
                     "apellido"        to apellido,
@@ -88,8 +110,8 @@ class AuthViewModel : ViewModel() {
             } catch (e: Exception) {
                 _authState.value = AuthState.Error(
                     when {
-                        e.message?.contains("email") == true    -> "Este correo ya está registrado"
-                        e.message?.contains("network") == true  -> "Sin conexión a internet"
+                        e.message?.contains("email") == true   -> "Este correo ya está registrado"
+                        e.message?.contains("network") == true -> "Sin conexión a internet"
                         else -> "Error al registrar: ${e.message}"
                     }
                 )
