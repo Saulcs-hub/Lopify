@@ -30,6 +30,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.carlossaulvillabonapinilla.lopify.R
 
+import com.carlossaulvillabonapinilla.lopify.ui.model.UserSession
+
+
 // Importaciones de Mapbox
 import com.mapbox.geojson.Point
 import com.mapbox.maps.extension.compose.MapboxMap
@@ -89,7 +92,7 @@ fun HomeScreen(
         ) {
             item {
                 HomeHeader(
-                    userName = "Maria Garcia",
+                    userName =  UserSession.username.value,
                     streakCount = 3,
                     isStreakActive = isStreakActive,
                     onStreakClick = { isStreakActive = !isStreakActive },

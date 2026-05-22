@@ -84,28 +84,49 @@ fun LoopifyNavGraph() {
 
         // 🟢 Nuevas pantallas
         composable(Routes.ORDERS) {
+
             OrdersScreen(
                 onNavigateToHome    = { navController.navigate(Routes.HOME) },
                 onNavigateToMap     = { navController.navigate(Routes.MAP) },
-                onNavigateToProfile = { navController.navigate(Routes.PROFILE) }
+                onNavigateToProfile = { navController.navigate(Routes.PROFILE) },
+                onNavigateToCamera  = {
+                    navController.navigate(Routes.CAMERA) {
+                        launchSingleTop = true
+                    }
+                }
             )
+
         }
+
 
         composable(Routes.MAP) {
             MapScreen(
                 onNavigateToHome    = { navController.navigate(Routes.HOME) },
                 onNavigateToOrders  = { navController.navigate(Routes.ORDERS) },
-                onNavigateToProfile = { navController.navigate(Routes.PROFILE) }
+                onNavigateToProfile = { navController.navigate(Routes.PROFILE) },
+                onNavigateToCamera  = {
+                    navController.navigate(Routes.CAMERA) {
+                        launchSingleTop = true
+                    }
+                }
             )
         }
+
+
 
         composable(Routes.PROFILE) {
             ProfileScreen(
                 onNavigateToHome   = { navController.navigate(Routes.HOME) },
                 onNavigateToOrders = { navController.navigate(Routes.ORDERS) },
-                onNavigateToMap    = { navController.navigate(Routes.MAP) }
+                onNavigateToMap    = { navController.navigate(Routes.MAP) },
+                onNavigateToCamera = {
+                    navController.navigate(Routes.CAMERA) {
+                        launchSingleTop = true
+                    }
+                }
             )
         }
+
 
         composable(Routes.CAMERA) {
             CameraScreen(
@@ -124,9 +145,16 @@ fun LoopifyNavGraph() {
                     navController.navigate(Routes.CAMERA) {
                         popUpTo(Routes.RESULT) { inclusive = true }
                     }
+                },
+                onGoToOrders = {
+                    navController.navigate(Routes.ORDERS) {
+                        popUpTo(Routes.HOME) { inclusive = false }
+                        launchSingleTop = true
+                    }
                 }
             )
         }
+
 
 
     }

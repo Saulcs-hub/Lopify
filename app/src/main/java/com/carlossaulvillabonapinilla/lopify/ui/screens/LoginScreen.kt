@@ -42,6 +42,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.carlossaulvillabonapinilla.lopify.R
 import com.carlossaulvillabonapinilla.lopify.viewmodel.AuthState
 import com.carlossaulvillabonapinilla.lopify.viewmodel.AuthViewModel
+import com.carlossaulvillabonapinilla.lopify.ui.model.UserSession
+
 
 // ─── Colores ──────────────────────────────────────────────────────────────────
 private val BackgroundColor = Color(0xFFF0F5F0)
@@ -80,6 +82,7 @@ fun LoginScreen(
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) {
             viewModel.resetState()
+            UserSession.username.value = email.substringBefore("@")
             onLoginClick()
         }
     }

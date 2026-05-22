@@ -58,7 +58,8 @@ data class RecyclePoint(
 fun MapScreen(
     onNavigateToHome: () -> Unit = {},
     onNavigateToOrders: () -> Unit = {},
-    onNavigateToProfile: () -> Unit = {}
+    onNavigateToProfile: () -> Unit = {},
+    onNavigateToCamera: () -> Unit = {}
 ) {
     var selectedFilter by rememberSaveable  { mutableStateOf(0) }
     var selectedNavIndex by rememberSaveable  { mutableStateOf(3) }
@@ -215,11 +216,13 @@ fun MapScreen(
             onItemSelected = { index ->
                 selectedNavIndex = index
                 when (index) {
+
                     0 -> onNavigateToHome()
                     1 -> onNavigateToOrders()
-                    // 2 = botón Enviar (cámara, pendiente)
-                    // 3 = Mapa, pantalla actual, no navega
+                    2 -> onNavigateToCamera()
+                    3 -> { /* Ya estás en Mapa */ }
                     4 -> onNavigateToProfile()
+
                 }
             },
             modifier = Modifier.align(Alignment.BottomCenter)

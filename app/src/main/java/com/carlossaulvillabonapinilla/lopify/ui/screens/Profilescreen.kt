@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.carlossaulvillabonapinilla.lopify.R
+import com.carlossaulvillabonapinilla.lopify.ui.model.UserSession
 
 // ─── COLORES (mismos que HomeScreen) ─────────────────────────────────────────
 private val ProfIconGreen         = Color(0xFF0A1A05)
@@ -60,7 +61,8 @@ data class UserStats(
 fun ProfileScreen(
     onNavigateToHome: () -> Unit = {},
     onNavigateToOrders: () -> Unit = {},
-    onNavigateToMap: () -> Unit = {}
+    onNavigateToMap: () -> Unit = {},
+    onNavigateToCamera: () -> Unit = {}
 ) {
     var selectedNavIndex by rememberSaveable { mutableStateOf(4) }
 
@@ -150,11 +152,13 @@ fun ProfileScreen(
             onItemSelected = { index ->
                 selectedNavIndex = index
                 when (index) {
+
                     0 -> onNavigateToHome()
                     1 -> onNavigateToOrders()
-                    // 2 = botón Enviar (cámara, pendiente)
+                    2 -> onNavigateToCamera()
                     3 -> onNavigateToMap()
-                    // 4 = Perfil, pantalla actual, no navega
+                    4 -> { /* Ya estás en Perfil */ }
+
                 }
             },
             modifier = Modifier.align(Alignment.BottomCenter)
@@ -227,7 +231,7 @@ fun ProfileHeader(stats: UserStats, modifier: Modifier = Modifier) {
         // Nombre y nivel
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "Maria Garcia",
+                text = UserSession.username.value,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = ProfTextBlack

@@ -19,10 +19,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.carlossaulvillabonapinilla.lopify.ui.model.AppState
 import com.carlossaulvillabonapinilla.lopify.ui.model.WeightResult
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import com.carlossaulvillabonapinilla.lopify.ui.model.Solicitud
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ResultScreen(onNewCapture: () -> Unit) {
+fun ResultScreen(
+    onNewCapture: () -> Unit,
+    onGoToOrders: () -> Unit
+) {
 
     val result: WeightResult = AppState.lastResult ?: run {
         Box(Modifier.fillMaxSize().background(Color(0xFF0D1117)),
@@ -153,6 +162,33 @@ fun ResultScreen(onNewCapture: () -> Unit) {
                 }
             }
 
+            // ── Botón nueva solicitud o propuesta de reciclaje ────────────────────────────
+            val context = LocalContext.current
+            var alreadyCreated by remember { mutableStateOf(false) }
+
+            Button(
+                onClick = {
+                    if (alreadyCreated) return@Button
+
+                    val now = SimpleDateFormat("dd/MM HH:mm", Locale.getDefault()).format(Date())
+                    AppState.solicitudes.add(
+                        Solicitud(
+                            material = "${result.material.emoji} ${result.material.name}",
+                            peso = result.displayWeight(),
+                            fecha = now
+                        )
+                    )
+                    alreadyCreated = true
+                    Toast.makeText(context, "✅ Solicitud creada", Toast.LENGTH_SHORT).show()
+                    onGoToOrders()
+                },
+                modifier = Modifier.fillMaxWidth().height(52.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF9C74F)),
+                shape = RoundedCornerShape(26.dp),
+                enabled = !alreadyCreated
+            ) {
+                Text("Generar solicitud", color = Color.Black, fontWeight = FontWeight.Bold)
+            }
             // ── Botón nueva captura ────────────────────────────
             Button(
                 onClick = onNewCapture,
@@ -160,7 +196,7 @@ fun ResultScreen(onNewCapture: () -> Unit) {
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00D4AA)),
                 shape = RoundedCornerShape(26.dp)
             ) {
-                Text("📷  Nueva captura", color = Color.Black,
+                Text("Nueva captura", color = Color.Black,
                     fontWeight = FontWeight.Bold, fontSize = 15.sp)
             }
         }

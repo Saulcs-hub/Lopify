@@ -34,6 +34,7 @@ import androidx.core.content.ContextCompat
 import com.carlossaulvillabonapinilla.lopify.ui.model.*
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.Executors
+import com.carlossaulvillabonapinilla.lopify.ui.model.Solicitud
 
 // ── Pasos del flujo ──────────────────────────────────────
 enum class CameraStep {
@@ -361,8 +362,19 @@ fun CameraScreen(onResult: () -> Unit, onBack: () -> Unit) {
                                         material    = selectedMaterial,
                                         usedFallback = false
                                     )
+
                                     AppState.lastResult = result
+
+//                                    AppState.solicitudes.add(
+//                                        Solicitud(
+//                                            material = selectedMaterial.name,
+//                                            peso = result.displayWeight(),
+//                                            fecha = "Hoy"
+//                                        )
+//                                    )
+
                                     onResult()
+
                                 },
                                 modifier = Modifier.weight(1f),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00D4AA))

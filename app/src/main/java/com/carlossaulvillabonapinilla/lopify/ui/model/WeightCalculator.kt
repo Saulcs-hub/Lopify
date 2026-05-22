@@ -1,4 +1,6 @@
 package com.carlossaulvillabonapinilla.lopify.ui.model
+import androidx.compose.runtime.mutableStateListOf
+
 
 object WeightCalculator {
 
@@ -97,6 +99,18 @@ data class WeightResult(
 }
 
 // Resultado compartido entre pantallas
+
+
+data class Solicitud(
+    val material: String,
+    val peso: String,
+    val fecha: String
+)
+
+
+
 object AppState {
     var lastResult: WeightResult? = null
+    val solicitudes = mutableStateListOf<Solicitud>()
 }
+

@@ -1,5 +1,6 @@
 package com.carlossaulvillabonapinilla.lopify.ui.screens
 
+
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -28,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.carlossaulvillabonapinilla.lopify.R
+import com.carlossaulvillabonapinilla.lopify.ui.model.AppState
 
 // ─── COLORES (mismos que HomeScreen) ─────────────────────────────────────────
 private val IconGreen         = Color(0xFF0A1A05)
@@ -57,29 +59,36 @@ enum class OrderStatus { PENDING, EN_ROUTE, COMPLETED }
 fun OrdersScreen(
     onNavigateToHome: () -> Unit = {},
     onNavigateToMap: () -> Unit = {},
-    onNavigateToProfile: () -> Unit = {}
+    onNavigateToProfile: () -> Unit = {},
+            onNavigateToCamera: () -> Unit ={}
 ) {
     var selectedFilter by rememberSaveable { mutableStateOf(0) }
     var selectedNavIndex by rememberSaveable { mutableStateOf(1) }
 
     val filters = listOf("Todos", "Pendiente", "En camino", "Completado")
 
-    val allOrders = listOf(
-        OrderData("RP-0042", "Plástico + Cartón", "Carlos M.", "hace 8 min",
-            "Punto Carrera 15", "0.8 km", "4.5 kg", OrderStatus.EN_ROUTE, R.drawable.icon_plastico),
-        OrderData("RP-0041", "Papel + Cartón", "Sin asignar", "hace 15 min",
-            "Punto San Francisco", "0.3 km", "2.0 kg", OrderStatus.PENDING, R.drawable.icon_papel),
-        OrderData("RP-0040", "Vidrio", "Ana L.", "ayer 14:30",
-            "Parque San Pío", "0.5 km", "3.2 kg", OrderStatus.COMPLETED, R.drawable.icon_vidrio),
-        OrderData("RP-0039", "Cartón", "Pedro R.", "hace 2 días",
-            "Punto Cabecera", "1.2 km", "6.0 kg", OrderStatus.COMPLETED, R.drawable.icon_carton)
-    )
+    val allOrders =
+        AppState.solicitudes.mapIndexed { index, s ->
+            OrderData(
+                id = "RP-${1000 + index}",
+                material = s.material,
+                recyclerName = "Sin asignar",
+                timeAgo = s.fecha,
+                location = "Ubicación pendiente",
+                distance = "--",
+                weight = s.peso,
+                status = OrderStatus.PENDING,
+                iconRes = R.drawable.icon_plastico
+            )
+        }
+
 
     val filteredOrders = when (selectedFilter) {
         1 -> allOrders.filter { it.status == OrderStatus.PENDING }
         2 -> allOrders.filter { it.status == OrderStatus.EN_ROUTE }
         3 -> allOrders.filter { it.status == OrderStatus.COMPLETED }
         else -> allOrders
+
     }
 
     val activeCount = allOrders.count { it.status == OrderStatus.EN_ROUTE || it.status == OrderStatus.PENDING }
@@ -165,17 +174,20 @@ fun OrdersScreen(
 
         // ── Nav Bar ─────────────────────────────────────────────
         OrdersNavBar(
+
             selectedIndex = selectedNavIndex,
             onItemSelected = { index ->
                 selectedNavIndex = index
                 when (index) {
                     0 -> onNavigateToHome()
-                    // 1 = Pedidos (pantalla actual, no navega)
+                    1 -> { /* Ya estás en Pedidos */ }
+                    2 -> onNavigateToCamera()   // ✅ ESTE ES EL PASO 8
                     3 -> onNavigateToMap()
                     4 -> onNavigateToProfile()
                 }
             },
             modifier = Modifier.align(Alignment.BottomCenter)
+
         )
     }
 }
